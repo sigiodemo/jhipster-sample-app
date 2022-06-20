@@ -98,44 +98,37 @@ pipeline {
       }
     }
 
-    stage ('Security Testing') {
-      parallel {
-        stage('SAST - Coverity on Polaris') {
-          when {
-            expression { env.IS_SAST_ENABLED == "true" }
-          }
-          agent { label 'ubuntu' }
-          steps {
-            sh '''
-              #if [ ${env.IS_SAST_ENABLED} = "true" ]; then
-              echo "Running Coverity on Polaris"
-              rm -fr /tmp/polaris 2>/dev/null
-              wget -q ${_POLARIS_SERVER_URL}/api/tools/polaris_cli-linux64.zip
-              unzip -j polaris_cli-linux64.zip -d /tmp
-              rm polaris_cli-linux64.zip
-              /tmp/polaris --persist-config --co project.name="${PROJECT}" --co project.branch="${BRANCH}" --co capture.build.buildCommands="null" --co capture.build.cleanCommands="null" --co capture.fileSystem="null" --co capture.coverity.autoCapture="enable" configure
-              /tmp/polaris analyze -w
-              #else
-              #  echo "Skipping Coverity on Polaris based on prescription"
-              #fi
-            '''
-          }
-        }
-        stage ('SCA - Black Duck') {
-          when {
-            expression { env.IS_SCA_ENABLED == "true" }
-          }
-          agent { label 'ubuntu' }
-          steps {
-            sh '''
-              echo "Running BlackDuck"
-              rm -fr /tmp/detect7.sh
-              curl -s -L https://detect.synopsys.com/detect7.sh > /tmp/detect7.sh
-              bash /tmp/detect7.sh --blackduck.url="${_BLACKDUCK_SERVER_URL}" --blackduck.api.token="${BLACKDUCK_ACCESS_TOKEN}" --detect.project.name="${PROJECT}" --detect.project.version.name="${VERSION}" --blackduck.trust.cert=true
-              # --detect.blackduck.scan.mode=RAPID
-            '''
-          }
-        }
+    stage('SAST - Coverity on Polaris') {
+      when {
+        expression { env.IS_SAST_ENABLED == "true" }
+      }
+      steps {
+        sh '''
+          #if [ ${env.IS_SAST_ENABLED} = "true" ]; then
+          echo "Running Coverity on Polaris"
+          rm -fr /tmp/polaris 2>/dev/null
+          wget -q ${_POLARIS_SERVER_URL}/api/tools/polaris_cli-linux64.zip
+          unzip -j polaris_cli-linux64.zip -d /tmp
+          rm polaris_cli-linux64.zip
+          /tmp/polaris --persist-config --co project.name="${PROJECT}" --co project.branch="${BRANCH}" --co capture.build.buildCommands="null" --co capture.build.cleanCommands="null" --co capture.fileSystem="null" --co capture.coverity.autoCapture="enable" configure
+          /tmp/polaris analyze -w
+          #else
+          #  echo "Skipping Coverity on Polaris based on prescription"
+          #fi
+        '''
+      }
+    }
+    stage ('SCA - Black Duck') {
+      when {
+        expression { env.IS_SCA_ENABLED == "true" }
+      }
+      steps {
+        sh '''
+          echo "Running BlackDuck"
+          rm -fr /tmp/detect7.sh
+          curl -s -L https://detect.synopsys.com/detect7.sh > /tmp/detect7.sh
+          bash /tmp/detect7.sh --blackduck.url="${_BLACKDUCK_SERVER_URL}" --blackduck.api.token="${BLACKDUCK_ACCESS_TOKEN}" --detect.project.name="${PROJECT}" --detect.project.version.name="${VERSION}" --blackduck.trust.cert=true
+        '''
       }
     }
 
@@ -143,7 +136,6 @@ pipeline {
       when {
         expression { env.IS_DAST_ENABLED == "true" }
       }
-      agent { label 'ubuntu' }
       steps {
         sh '''#!/bin/bash
           if [ ! -z ${SERVER_WORKINGDIR} ]; then cd ${SERVER_WORKINGDIR}; fi
@@ -179,7 +171,6 @@ pipeline {
     }
 
     stage ('IO Workflow - Code Dx') {
-      agent { label 'ubuntu' }
       steps {
         sh '''
           projectID=$(/tmp/getProjectID.sh --url=${_CODEDX_SERVER_URL} --apikey=${CODEDX_TOKEN} --project=${PROJECT})
@@ -222,7 +213,6 @@ pipeline {
       }
     }
     stage('Clean Workspace') {
-      agent { label 'ubuntu' }
       steps {
         cleanWs()
       }
