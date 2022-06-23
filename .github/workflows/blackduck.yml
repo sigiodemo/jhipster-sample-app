@@ -12,20 +12,10 @@ jobs:
         distribution: 'adopt'
     - name: Build my project with Maven
       run: mvn clean package -DskipTests
-    - name: Create Black Duck Policy
-      env:
-        NODE_EXTRA_CA_CERTS: ${{ secrets.LOCAL_CA_CERT_PATH }}
-      uses: blackducksoftware/create-policy-action@v0.0.1
-      with:
-        blackduck-url: ${{ secrets.BLACKDUCK_URL }}
-        blackduck-api-token: ${{ secrets.BLACKDUCK_API_TOKEN }}
-        policy-name: 'no critical security risk'
-        no-fail-if-policy-exists: true
     - name: Run Synopsys Detect
       uses: synopsys-sig/detect-action@v0.3.2
       env:
         DETECT_BLACKDUCK_RAPID_COMPARE_MODE: BOM_COMPARE_STRICT
-        NODE_EXTRA_CA_CERTS: ${{ secrets.LOCAL_CA_CERT_PATH }}
       with:
           scan-mode: INTELLIGENT # Can be omitted, since this is the default value
           github-token: ${{ secrets.GITHUB_TOKEN }}
