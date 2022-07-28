@@ -18,6 +18,7 @@ pipeline {
     SERVER_WORKINGDIR = ""
     SEEKER_RUN_TIME = 180
     SEEKER_PROJECT_KEY = 'jhip'
+    IO_VERSION = '2022.7.0'
   }
 
   stages{
@@ -38,7 +39,7 @@ pipeline {
           curl -s -L https://raw.githubusercontent.com/jones6951/io-scripts/main/getProjectID.sh > /tmp/getProjectID.sh
           curl -s -L https://raw.githubusercontent.com/jones6951/io-scripts/main/serverStart.sh > /tmp/serverStart.sh
           curl -s -L https://raw.githubusercontent.com/jones6951/io-scripts/main/isNumeric.sh > /tmp/isNumeric.sh
-          curl -s -L https://raw.githubusercontent.com/synopsys-sig/io-artifacts/main/prescription.sh > /tmp/prescription.sh
+          curl -s -L https://raw.githubusercontent.com/synopsys-sig/io-artifacts/${IO_VERSION}/prescription.sh > /tmp/prescription.sh
 
           chmod +x /tmp/getProjectID.sh
           chmod +x /tmp/serverStart.sh
@@ -62,7 +63,7 @@ pipeline {
             --project.name="${PROJECT}" \
             --asset.id="${PROJECT}" \
             --workflow.url="${_IO_SERVER_URL}/api/workflowengine/" \
-            --workflow.version="2022.4.1" \
+            --workflow.version="${IO_VERSION}" \
             --file.change.threshold="10" \
             --sast.rescan.threshold="20" \
             --sca.rescan.threshold="20" \
@@ -184,7 +185,7 @@ pipeline {
             --manifest.type="json" \
             --asset.id="${PROJECT}" \
             --workflow.url="${_IO_SERVER_URL}/api/workflowengine/" \
-            --workflow.version="2022.4.1" \
+            --workflow.version="${IO_VERSION}" \
             --file.change.threshold="10" \
             --sast.rescan.threshold="20" \
             --sca.rescan.threshold="20" \
